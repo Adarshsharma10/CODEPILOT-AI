@@ -1,0 +1,16 @@
+# Backend dependencies
+BACKEND/node_modules/
+
+# Frontend dependencies
+FRONTEND/node_modules/
+
+# Environment files
+BACKEND/.env
+FRONTEND/.env
+
+# Logs
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
