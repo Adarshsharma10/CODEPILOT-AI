@@ -4,7 +4,6 @@ console.log("Server file started");
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
-
 const connectDB = require("./config/db");
 const express = require("express");    //IMPORT THE EXPRESS LIBRARRY
 const app = express();   // Creates your Express Application

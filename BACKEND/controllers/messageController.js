@@ -1,5 +1,6 @@
 const Message = require("../models/messageModel");
 const Chat = require("../models/chatModel");
+const { generateResponse } = require("../services/geminiService");
 
 const createMessage = async (req, res) => {
     try {
@@ -28,9 +29,24 @@ const createMessage = async (req, res) => {
             content
         });
 
+        let aiReply;
+
+        try {
+            aiReply = await generateResponse(content);
+        } catch (error) {
+            aiReply = "Sorry, I couldn't generate a response right now.";
+        }
+
+        const assistantMessage = await Message.create({
+            chat: chatId,
+            role: "assistant",
+            content: aiReply
+        });
+
         res.status(201).json({
-            message: "Message created successfully",
-            data: message
+            success: true,
+            userMessage: message,
+            assistantMessage
         });
 
     } catch (error) {
