@@ -40,6 +40,30 @@ const createMessage = async (req, res) => {
     }
 };
 
+const getMessages = async (req, res) => {
+
+    const { chatId } = req.params;
+
+    const chat = await Chat.findOne({
+        _id: chatId,
+        user: req.user.id
+    });
+
+    if (!chat) {
+        return res.status(404).json({
+            message: "Chat not found"
+        });
+    }
+
+    const messages = await Message.find({
+        chat: chatId
+    }).sort({
+        createdAt: 1
+    });
+
+    res.status(200).json(messages);
+};
 module.exports = {
-    createMessage
+    createMessage,
+    getMessages
 };
