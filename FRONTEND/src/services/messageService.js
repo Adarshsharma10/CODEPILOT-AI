@@ -45,8 +45,8 @@ export const sendMessageStream = async (
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-        `${API_URL}/messages`,
-        {
+    `${import.meta.env.VITE_API_URL}/messages`,
+    {
             method: "POST",
 
             headers: {
