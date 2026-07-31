@@ -1,42 +1,87 @@
-
 require("dotenv").config();
-console.log("Server file started");
+
+const express = require("express");
+const cors = require("cors");
+
+const connectDB = require("./config/db");
+
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
-const connectDB = require("./config/db");
-const express = require("express");    //IMPORT THE EXPRESS LIBRARRY
-const app = express();   // Creates your Express Application
-connectDB();
-const PORT = process.env.PORT;
 
-//Middleware
+const app = express();
+
+
+// ==========================================
+// Database
+// ==========================================
+
+connectDB();
+
+
+// ==========================================
+// Middleware
+// ==========================================
+
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "PATCH"
+        ],
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization"
+        ]
+    })
+);
+
 app.use(express.json());
 
-app.get("/", (req,res) => {
-    res.send("Welcome to CodePilot AI");
+
+// ==========================================
+// Health Check
+// ==========================================
+
+app.get("/", (req, res) => {
+    res.status(200).json({
+        message: "CodePilot AI API is running"
+    });
 });
 
-app.get("/about", (req,res) => {
-    res.send("This is the About Page");
-});
 
-app.get("/login", (req,res) => {
-    res.send("Login Page");
-});
+// ==========================================
+// API Routes
+// ==========================================
 
-app.get("/register", (req,res) => {
-    res.send("Register Page");
-});
-
-app.use("/api/users", userRoutes);   //connect all user routes
-
-
+app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/messages", messageRoutes);
 
 
+// ==========================================
+// 404 Handler
+// ==========================================
+
+app.use((req, res) => {
+    res.status(404).json({
+        message: "API route not found"
+    });
+});
+
+
+// ==========================================
+// Start Server
+// ==========================================
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(
+        `Server is running on http://localhost:${PORT}`
+    );
 });

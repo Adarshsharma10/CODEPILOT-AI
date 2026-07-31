@@ -1,16 +1,40 @@
-# Backend dependencies
+# =========================
+# Dependencies
+# =========================
 BACKEND/node_modules/
-
-# Frontend dependencies
 FRONTEND/node_modules/
 
-# Environment files
+# =========================
+# Environment / Secrets
+# =========================
 BACKEND/.env
 FRONTEND/.env
+.env
+.env.local
+.env.*.local
 
+# =========================
+# Production Builds
+# =========================
+FRONTEND/dist/
+FRONTEND/build/
+
+# =========================
 # Logs
+# =========================
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Operating System files
+# =========================
+# Editor
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Operating System
+# =========================
 .DS_Store
 Thumbs.db

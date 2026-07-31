@@ -1,12 +1,24 @@
 const Chat = require("../models/chatModel");
 const Message = require("../models/messageModel");
+
+
+// ==========================================
+// CREATE CHAT
+// ==========================================
+
 const createChat = async (req, res) => {
     try {
-        const { title } = req.body;
+        const title = req.body.title?.trim();
 
         if (!title) {
             return res.status(400).json({
                 message: "Title is required"
+            });
+        }
+
+        if (title.length > 100) {
+            return res.status(400).json({
+                message: "Title cannot exceed 100 characters"
             });
         }
 
@@ -15,31 +27,54 @@ const createChat = async (req, res) => {
             user: req.user.id
         });
 
-        res.status(201).json({
+        return res.status(201).json({
             message: "Chat created successfully",
             chat
         });
+
     } catch (error) {
-        res.status(500).json({
-            message: error.message
+        console.error(
+            "Create Chat Error:",
+            error
+        );
+
+        return res.status(500).json({
+            message: "Unable to create chat"
         });
     }
 };
+
+
+// ==========================================
+// GET ALL CHATS
+// ==========================================
 
 const getChats = async (req, res) => {
     try {
         const chats = await Chat.find({
             user: req.user.id
-        }).sort({ createdAt: -1 });
+        }).sort({
+            updatedAt: -1
+        });
 
-        res.status(200).json(chats);
+        return res.status(200).json(chats);
 
     } catch (error) {
-        res.status(500).json({
-            message: error.message
+        console.error(
+            "Get Chats Error:",
+            error
+        );
+
+        return res.status(500).json({
+            message: "Unable to get chats"
         });
     }
 };
+
+
+// ==========================================
+// GET CHAT BY ID
+// ==========================================
 
 const getChatById = async (req, res) => {
     try {
@@ -54,23 +89,45 @@ const getChatById = async (req, res) => {
             });
         }
 
-        res.status(200).json(chat);
+        return res.status(200).json(chat);
 
     } catch (error) {
-        res.status(500).json({
-            message: error.message
+
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                message: "Invalid chat ID"
+            });
+        }
+
+        console.error(
+            "Get Chat Error:",
+            error
+        );
+
+        return res.status(500).json({
+            message: "Unable to get chat"
         });
     }
 };
 
+
+// ==========================================
+// UPDATE / RENAME CHAT
+// ==========================================
+
 const updateChat = async (req, res) => {
     try {
-
-        const { title } = req.body;
+        const title = req.body.title?.trim();
 
         if (!title) {
             return res.status(400).json({
                 message: "Title is required"
+            });
+        }
+
+        if (title.length > 100) {
+            return res.status(400).json({
+                message: "Title cannot exceed 100 characters"
             });
         }
 
@@ -89,20 +146,43 @@ const updateChat = async (req, res) => {
 
         await chat.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             message: "Chat updated successfully",
             chat
         });
 
     } catch (error) {
-        res.status(500).json({
-            message: error.message
+
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                message: "Invalid chat ID"
+            });
+        }
+
+        console.error(
+            "Update Chat Error:",
+            error
+        );
+
+        return res.status(500).json({
+            message: "Unable to update chat"
         });
     }
 };
 
+
+// ==========================================
+// DELETE CHAT
+// ==========================================
+
 const deleteChat = async (req, res) => {
     try {
+        /*
+            Ownership is checked here.
+
+            A user can only delete a chat
+            belonging to their own account.
+        */
 
         const chat = await Chat.findOne({
             _id: req.params.id,
@@ -115,22 +195,46 @@ const deleteChat = async (req, res) => {
             });
         }
 
+
+        // Delete all messages belonging to the chat
         await Message.deleteMany({
             chat: chat._id
         });
 
-        await Chat.findByIdAndDelete(chat._id);
 
-        res.status(200).json({
+        // Delete the chat itself
+        await Chat.deleteOne({
+            _id: chat._id
+        });
+
+
+        return res.status(200).json({
             message: "Chat deleted successfully"
         });
 
     } catch (error) {
-        res.status(500).json({
-            message: error.message
+
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                message: "Invalid chat ID"
+            });
+        }
+
+        console.error(
+            "Delete Chat Error:",
+            error
+        );
+
+        return res.status(500).json({
+            message: "Unable to delete chat"
         });
     }
 };
+
+
+// ==========================================
+// EXPORTS
+// ==========================================
 
 module.exports = {
     createChat,
